@@ -40,6 +40,7 @@ def configure_routes(app):
 
     @app.route('/predict')
     def predict():
+        
         #use entries from the query string here but could also use json
         age = request.args.get('age')
         absences = request.args.get('absences')
