@@ -31,3 +31,12 @@ def configure_routes(app):
         query = pd.get_dummies(query_df)
         prediction = clf.predict(query)
         return jsonify(np.asscalar(prediction))
+
+@app.route('/predict/more')
+    def predict_more():
+        #use entries from the query string here but could also use json
+
+        #predictions, accuracy
+        return jsonify({
+            'prediction': 0,
+            'confidence': 0})
