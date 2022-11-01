@@ -62,6 +62,6 @@ def configure_routes(app):
 
         #predictions, accuracy
         return jsonify({
-            'prediction': 0,
-            'confidence': 0})
+            'prediction': 0.0,
+            'confidence': 0.0})
 

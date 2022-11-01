@@ -93,11 +93,11 @@ def test_predict_more_route():
     assert type(response_data['confidence']) is float
 
     #check that model accuracy falls between 0 and 1
-    assert response.get_data()['prediction'] >= 0 and response.get_data()['prediction'] <= 1
-    assert response.get_data()['confidence'] >= 0 and response.get_data()['confidence'] <= 1
+    assert response_data['prediction'] >= 0 and response_data['prediction'] <= 1
+    assert response_data['confidence'] >= 0 and response_data['confidence'] <= 1
 
     #check that all inputs are present
-    validate_inputs(url)
+    validate_inputs('/predict')
 
 def test_accuracy_route():
     app = Flask(__name__)
