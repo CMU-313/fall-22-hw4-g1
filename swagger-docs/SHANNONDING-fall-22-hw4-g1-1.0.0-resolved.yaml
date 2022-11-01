@@ -1,0 +1,334 @@
+---
+openapi: 3.0.0
+info:
+  title: HW4 G1
+  description: "CMU grad school applicant prediction microservice. \n"
+  version: 1.0.0
+servers:
+- url: https://virtserver.swaggerhub.com/SHANNONDING/fall-22-hw4-g1/1.0.0
+  description: SwaggerHub API Auto Mocking
+tags:
+- name: model
+  description: About the machine learning model
+- name: prediction
+  description: Get a prediction of success from providing data on an applicant
+paths:
+  /about/accuracy:
+    get:
+      tags:
+      - model
+      summary: Describe the current training accuracy of the model
+      description: Describe the current training accuracy of the model
+      responses:
+        "200":
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: number
+            application/xml:
+              schema:
+                type: number
+  /about/weight:
+    get:
+      tags:
+      - model
+      summary: Describe how important each attribute is to the model
+      description: Each attribute has a weight (number between 0 and 1) describing how much the value of the attribute influences the model's prediction.
+      responses:
+        "200":
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ModelAttributesWeights'
+            application/xml:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ModelAttributesWeights'
+        "300":
+          description: Internal error
+  /predict:
+    post:
+      tags:
+      - prediction
+      summary: Predict the success of a student.
+      requestBody:
+        description: Optional description in *Markdown*
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ModelAttributes'
+        required: true
+      responses:
+        "200":
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: integer
+        "400":
+          description: One or more parameters are invalid.
+  /predict/more:
+    post:
+      tags:
+      - prediction
+      summary: Get more information about a prediction for a
+      requestBody:
+        description: Optional description in *Markdown*
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ModelAttributes'
+        required: true
+      responses:
+        "200":
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/inline_response_200'
+        "400":
+          description: One or more parameters are invalid.
+components:
+  schemas:
+    ModelAttributesWeights:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        school:
+          type: number
+        sex:
+          type: number
+        age:
+          type: number
+        address:
+          type: number
+        famsize:
+          type: number
+        Pstatus:
+          type: number
+        Medu:
+          type: number
+        Fedu:
+          type: number
+        Mjob:
+          type: number
+        Fjob:
+          type: number
+        reason:
+          type: number
+        guardian:
+          type: number
+        traveltime:
+          type: number
+        studytime:
+          type: number
+        failures:
+          type: number
+        schoolsup:
+          type: number
+        famsup:
+          type: number
+        paid:
+          type: number
+        activities:
+          type: number
+        nursery:
+          type: number
+        higher:
+          type: number
+        internet:
+          type: number
+        romantic:
+          type: number
+        famrel:
+          type: number
+        freetime:
+          type: number
+        goout:
+          type: number
+        Dalc:
+          type: number
+        Walc:
+          type: number
+        health:
+          type: number
+        absences:
+          type: number
+        G1:
+          type: number
+        G2:
+          type: number
+        G3:
+          type: number
+    ModelAttributes:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        school:
+          type: string
+        sex:
+          type: string
+          enum:
+          - F
+          - M
+        age:
+          minimum: 0
+          type: integer
+          description: Age of applicant
+        address:
+          type: string
+        famsize:
+          type: string
+          enum:
+          - GT3
+          - LT3
+        Pstatus:
+          type: string
+        Medu:
+          maximum: 4
+          minimum: 1
+          type: integer
+          description: Mother's education level
+        Fedu:
+          maximum: 4
+          minimum: 1
+          type: integer
+          description: Father's education level
+        Mjob:
+          type: string
+          description: Father's job
+        Fjob:
+          type: string
+          description: Mother's job
+        reason:
+          type: string
+        guardian:
+          type: string
+          description: Primary guardian
+          enum:
+          - father
+          - mother
+          - other
+        traveltime:
+          minimum: 0
+          type: integer
+          description: Travel time to school
+        studytime:
+          minimum: 0
+          type: integer
+          description: Study time
+        failures:
+          minimum: 0
+          type: integer
+          description: Number of classes failed
+        schoolsup:
+          type: string
+          enum:
+          - "true"
+          - "false"
+        famsup:
+          type: string
+          enum:
+          - "true"
+          - "false"
+        paid:
+          type: string
+          enum:
+          - "true"
+          - "false"
+        activities:
+          type: string
+          enum:
+          - "true"
+          - "false"
+        nursery:
+          type: string
+          enum:
+          - "true"
+          - "false"
+        higher:
+          type: string
+          enum:
+          - "true"
+          - "false"
+        internet:
+          type: string
+          enum:
+          - "true"
+          - "false"
+        romantic:
+          type: string
+          enum:
+          - "true"
+          - "false"
+        famrel:
+          maximum: 5
+          minimum: 1
+          type: integer
+        freetime:
+          maximum: 5
+          minimum: 1
+          type: integer
+        goout:
+          maximum: 5
+          minimum: 1
+          type: integer
+        Dalc:
+          type: integer
+          enum:
+          - 0
+          - 1
+        Walc:
+          type: integer
+          enum:
+          - 0
+          - 1
+        health:
+          maximum: 5
+          minimum: 1
+          type: integer
+        absences:
+          minimum: 0
+          type: integer
+          description: Number of absences
+        G1:
+          maximum: 20
+          minimum: 0
+          type: integer
+          description: Year 2 grades
+        G2:
+          maximum: 20
+          minimum: 0
+          type: integer
+          description: Year 1 grades
+        G3:
+          maximum: 20
+          minimum: 0
+          type: integer
+          description: Year 3 grades
+    inline_response_200:
+      type: object
+      properties:
+        prediction:
+          type: number
+        confidence:
+          type: number
+  requestBodies:
+    ModelAttributes:
+      description: Object describing all attributes the model uses
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ModelAttributes'
+        application/xml:
+          schema:
+            $ref: '#/components/schemas/ModelAttributes'
