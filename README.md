@@ -13,7 +13,8 @@ correlation_matrix = df.corrwith(G3_df).sort_values()
 print(correlation_matrix.to_string())  
 ```  
 
-**Results**
+**Results**  
+
 Positive correlation to G3:  
 * G2 (90%)  
 * G1 (80%)  
@@ -33,16 +34,60 @@ Negative correlation to G3:
 ## Model Iteration & Accuracy Testing  
 
 ### General Setup
-We considered three common types of models: random forest classifier, basic decision tree, and logistic regression. To evaluate the accuracy, of the model, we checked the overall f1 score, which is a combination of precision and recall commonly used to evaluate trained binary classifiers. We also checked the k-fold accuracy of each type of classifier with 10 splits and shuffling on. This means we **randomly split** the data into training and testing sets ten ways and found the average accuracy. This should mitigate sampling biases and provide a clearer accuracy score than just dividing the dataset in half.
+We considered four common types of models: random forest classifier, basic decision tree, logistic regression, and naive bayes classifier. To evaluate the accuracy, of the model, we checked the f1 score, which is a combination of precision and recall commonly used to evaluate trained binary classifiers. We also checked the k-fold cross-validation accuracy of each type of classifier with 10 splits and shuffling on. This means we **randomly split** the data into training and testing sets ten ways and found the average accuracy. This should mitigate sampling biases and provide a clearer accuracy score than just dividing the dataset in half once.
 
 ### Baseline Model
-The baseline model yields an f1 score of 0.55. The accuracies for each of the three model types were between 0.76 and 0.82. 
+The baseline model provided in the starter code yields these f1 scores and kfold accuracies when training:   
+
+**F1 Score**  
+
++ Random Forest: 0.52
++ Decision Tree: 0.50
++ Logistic Regression: 0.00
++ Naive Bayes: 0.16
+
+**K-fold Cross Validation Accuracy**  
+
++ Random Forest: 0.10
++ Decision Tree: 0.11
++ Logistic Regression: 0.00
++ Naive Bayes: 0.04
 
 ### Iterations
-We first used G1 and G2 to predict G3. This yielded an f1 score of 0.96, average random-forest accuracy of 0.97, average decision-tree accuracy of 0.98, and average logistic-regression accuracy of 0.98. These are much higher than the baseline, without much room for improvement.  
+We first used G1 and G2 to predict G3. The scores are shown below. We can see that this is a huge improvement from the baseline for all types of models. The top three models have very similar scores, and logistic regression has the highest accuracy by a tiny margin.    
 
-Just to be safe, we also checked the models using G1, G2, and failures to predict G3. This yielded an f1 score of 0.97, average random-forest accuracy of 0.97, average decision-tree accuracy of 0.97, and average logistic-regression accuracy of 0.97. Since adding failures barely affected the model, we decided to just use G1 and G2 in the final model.  
+**F1 Score**  
+
++ Random Forest: 0.95
++ Decision Tree: 0.95
++ Logistic Regression: 0.94
++ Naive Bayes: 0.88
+
+**K-fold Cross Validation Accuracy**  
+
++ Random Forest: 0.92
++ Decision Tree: 0.92
++ Logistic Regression: 0.93
++ Naive Bayes: 0.86
+
+Just to be safe, we also checked the models using G1, G2, and failures to predict G3. 
+
+**F1 Score**  
+
++ Random Forest: 0.97
++ Decision Tree: 0.97
++ Logistic Regression: 0.95
++ Naive Bayes: 0.84
+
+**K-fold Cross Validation Accuracy**  
+
++ Random Forest: 0.92
++ Decision Tree: 0.93
++ Logistic Regression: 0.94
++ Naive Bayes: 0.83
+
+We can see that logistic regression again has the highest accuracy, but a slightly lower F1 score. Furthermore, adding failures harmed its accuracy. Therefore, we will stick to logistic regression using just G1 and G2.  
 
 ## Final Model 
-The final model uses G1 and G2 to predict if G3 is greater than 15 or not. G1 and G2 are the student's first period and second period grades, so it makes sense that these attributes are so highly correlated with the same student's final grade. As described above, the f1 score of this model is 0.96, which is much higher than the original f1 score of 0.55.
+The final model uses logistic regression and the attributes G1 and G2 to predict if G3 is greater than 15 or not. G1 and G2 are the student's first period and second period grades, so it makes sense that these attributes are so highly correlated with the same student's final grade. As discussed above, the f1 score of this model is 0.95, and the k-fold cross validation value was 0.94. These are much higher (almost double) of the scores for the baseline model.  
 
