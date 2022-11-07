@@ -82,7 +82,7 @@ def test_predict_more_route():
     client = app.test_client()
     url = '/predict/more'
 
-    response = client.get(url)
+    response = client.get(url, query_string = {"G1":15, "G2": 14})
     response_data = json.loads(response.get_data())
     assert response.status_code == 200
 

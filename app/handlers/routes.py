@@ -88,7 +88,9 @@ def configure_routes(app):
         print(query)
         prediction = clf.predict(query)
         confidence = clf.predict_proba(query)
+        print(confidence)
         output = dict()
-        output["prediction"] = np.asscalar(prediction)
-        output["confidence"] = np.asscalar(confidence)
+        output["prediction"] = np.ndarray.item(prediction)
+        print(confidence[0][output["prediction"]])
+        output["confidence"] = confidence[0][int(output["prediction"])]
         return jsonify(output)
