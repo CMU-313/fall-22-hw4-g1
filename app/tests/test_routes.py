@@ -22,10 +22,10 @@ def validate_inputs(url):
     app = Flask(__name__)
     configure_routes(app)
     client = app.test_client()
-
     response = client.get(url, query_string = {"G1": 18, "G2": 15} )
     assert response.status_code == 200
     assert (response.get_data() == 0 or response.get_data() == 1)
+
 
     failed_response1 = client.get(url, query_string = {"G1": 4, "health": 3})
     assert failed_response1.status_code == 400
@@ -82,14 +82,13 @@ def test_predict_route():
 
     assert model_accuracy > .80
 
-
 def test_predict_more_route():
     app = Flask(__name__)
     configure_routes(app)
     client = app.test_client()
     url = '/predict/more'
 
-    response = client.get(url)
+    response = client.get(url, query_string = {"G1":15, "G2": 14})
     response_data = json.loads(response.get_data())
     assert response.status_code == 200
 
