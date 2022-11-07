@@ -38,7 +38,7 @@ def configure_routes(app):
         return jsonify(weights)
 
 
-    @app.route('/predict')
+    @app.route('/predict', methods =['GET'])
     def predict():
         
         #use entries from the query string here but could also use json
@@ -47,18 +47,21 @@ def configure_routes(app):
         #health = request.args.get('health', dtype = 'float64')
         G1 = request.args.get('G1')
         G2 = request.args.get('G2')
+        print(G1)
+        print(G2)
         #data = [[age], [health], [absences], [G1], [G2]]
         query_df = pd.DataFrame({
          #   'age': pd.Series(age),
           #  'health': pd.Series(health),
            # 'absences': pd.Series(absences),
-            'G1': pd.Series(G1),
-            'G2': pd.Series(G2)
+            'G1_15': pd.Series(G1),
+            'G2_15': pd.Series(G2)
         })
         query = pd.get_dummies(query_df)
+        print(query)
         prediction = clf.predict(query)
         output = dict()
-        output["prediction"] = np.asscalar(prediction)
+        output["prediction"] = np.ndarray.item(prediction)
         return jsonify(output)
 
 
@@ -69,7 +72,9 @@ def configure_routes(app):
         #absences = request.args.get('absences', dtype='float64')
         #health = request.args.get('health', dtype = 'float64')
         G1 = request.args.get('G1')
+        print(G1)
         G2 = request.args.get('G2')
+        print(G2)
         #data = [[age], [health], [absences], [G1], [G2]]
         query_df = pd.DataFrame({
             #'age': pd.Series(age),
@@ -80,6 +85,7 @@ def configure_routes(app):
         })
         #predictions, accuracy
         query = pd.get_dummies(query_df)
+        print(query)
         prediction = clf.predict(query)
         confidence = clf.predict_proba(query)
         output = dict()
