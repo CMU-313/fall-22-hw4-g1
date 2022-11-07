@@ -1,7 +1,8 @@
 from flask import Flask
-
 import pandas as pd
 import numpy as np
+import pathlib as Path
+import os
 
 from app.handlers.routes import configure_routes
 import json
@@ -21,34 +22,42 @@ def validate_inputs(url):
     app = Flask(__name__)
     configure_routes(app)
     client = app.test_client()
-    #Can change the arguments later
-    response = client.get(url, json = {"age": 18, "absences": 5, "health": 4} )
+
+    response = client.get(url, query_string = {"G1": 18, "G2": 15} )
     assert response.status_code == 200
     assert (response.get_data() == 0 or response.get_data() == 1)
 
-    failed_response1 = client.get(url, json = {"absences": 4, "health": 3})
+    failed_response1 = client.get(url, query_string = {"G1": 4, "health": 3})
     assert failed_response1.status_code == 400
-    assert failed_response1.get_data() == "Invalid query: Arguments are missing"
+    assert failed_response1.get_data() == "Invalid query: G1 and G2 arguments are invalid"
 
-    failed_response2 = client.get(url, json = {"age": 4, "health": 3})
+    failed_response2 = client.get(url, query_string = {"GOne": 4, "G2": 3})
     assert failed_response2.status_code == 400
-    assert failed_response2.get_data() == "Invalid query: Arguments are missing"
+    assert failed_response2.get_data() == "Invalid query: G1 and G2 arguments are invalid"
 
-    failed_response3 = client.get(url, json = {"age": "Eighteen", "absences": 2, "health": 3})
+    failed_response3 = client.get(url, query_string = {"G1": -1, "G2": 15})
     assert failed_response3.status_code == 400
-    assert failed_response3.get_data() == "Invalid query: Arguments have invalid types or ranges"
+    assert failed_response3.get_data() == "Invalid query: G1 and G2 arguments are invalid"
 
-    failed_response4 = client.get(url, json = {"age": -5, "absences": 2, "health": 3})
+    failed_response4 = client.get(url, query_string = {"G1": 21, "G2": 15})
     assert failed_response4.status_code == 400
-    assert failed_response4.get_data() == "Invalid query: Arguments have invalid types or ranges"
+    assert failed_response4.get_data() == "Invalid query: G1 and G2 arguments are invalid"
 
-    failed_response5 = client.get(url, json = {"age": 17, "absences": -1, "health": 3})
+    failed_response5 = client.get(url, query_string = {"G1": 15, "G2": -1})
     assert failed_response5.status_code == 400
-    assert failed_response5.get_data() == "Invalid query: Arguments have invalid types or ranges"
+    assert failed_response5.get_data() == "Invalid query: G1 and G2 arguments are invalid"
 
-    failed_response6 = client.get(url, json = {"age": 17, "absences": 24, "health": 0})
+    failed_response6= client.get(url, query_string = {"G1": 19, "G2": 21})
     assert failed_response6.status_code == 400
-    assert failed_response6.get_data() == "Invalid query: Arguments have invalid types or ranges"
+    assert failed_response6.get_data() == "Invalid query: G1 and G2 arguments are invalid"
+
+    response7 = client.get(url, query_string = {"G1": 0, "G2": 0, "age": 22})
+    assert response7.status_code == 200
+    assert (response7.get_data() == 0 or response7.get_data() == 1)
+
+    response8 = client.get(url, query_string = {"G1": 20, "G2": 20})
+    assert response8.status_code == 200
+    assert (response8.get_data() == 0 or response8.get_data() == 1)
 
 def test_predict_route():
     app = Flask(__name__)
@@ -56,14 +65,14 @@ def test_predict_route():
     client = app.test_client()
     
     validate_inputs('/predict')
-    
-    df = pd.read_csv('data/student-mat.csv', sep=';')
+    super_dir = Path.cwd().parent
+    data_path = os.path.join(super_dir, 'data', 'student-mat.csv')
+    df = pd.read_csv(data_path, sep=';')
     count = 0
     size = df.shape[0]
     for row in df.rows:
-        response = client.get('/predict', json = {"age": row["age"], 
-                                           "absences": row["absences"],
-                                           "health": row["health"] })
+        response = client.get('/predict', query_string = {"G1": row["G1"], 
+                                                          "G2": row["G2"] })
         actual_pred = (row["G3"] > 15)
         pred = response.get_data()
         if (pred == 1 and actual_pred) or (pred == 0 and not actual_pred):
@@ -71,7 +80,7 @@ def test_predict_route():
 
     model_accuracy = count/size
 
-    assert model_accuracy > .50 ##can change threshold late
+    assert model_accuracy > .80
 
 
 def test_predict_more_route():
@@ -89,11 +98,11 @@ def test_predict_more_route():
     assert 'confidence' in response_data
 
     #check data types
-    assert type(response_data['prediction']) is float
+    assert type(response_data['prediction']) is int
     assert type(response_data['confidence']) is float
 
     #check that model accuracy falls between 0 and 1
-    assert response_data['prediction'] >= 0 and response_data['prediction'] <= 1
+    assert response_data['prediction'] == 0 or response_data['prediction'] == 1
     assert response_data['confidence'] >= 0 and response_data['confidence'] <= 1
 
     #check that all inputs are present
@@ -106,7 +115,7 @@ def test_accuracy_route():
     url = '/about/accuracy'
 
     response = client.get(url)
-    response_data = int(response.get_data())
+    response_data = response.get_data()
 
     assert response.status_code == 200
     assert type(response_data) is int 

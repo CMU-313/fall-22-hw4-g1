@@ -4,6 +4,7 @@ import joblib
 import pandas as pd
 import numpy as np
 import os
+from pathlib import Path
 
 def configure_routes(app):
 
@@ -20,7 +21,6 @@ def configure_routes(app):
     @app.route('/about/accuracy')
     def accuracy():
         return "75"
-
 
     @app.route('/about/weight')
     def weight():
