@@ -1,5 +1,5 @@
 import this
-from flask import Flask, jsonify, request, abort
+from flask import Flask, jsonify, request, abort, make_response
 import joblib
 import pandas as pd
 import numpy as np
@@ -20,6 +20,25 @@ def configure_routes(app):
 
     @app.route('/about/accuracy')
     def accuracy():
+        app = Flask(__name__)
+        configure_routes(app)
+        client = app.test_client()
+    
+        super_dir = Path.cwd().parent
+        data_path = os.path.join(super_dir, 'data', 'student-mat.csv')
+        df = pd.read_csv(data_path, sep=';')
+        count = 0
+        size = df.shape[0]
+        for row in df.iterrows():
+            response = client.get('/predict', data = {"G1": row["G1"], 
+                                                      "G2": row["G2"] })
+        actual_pred = (row["G3"] > 15)
+        pred = response.get_data()
+        if (pred == 1 and actual_pred) or (pred == 0 and not actual_pred):
+            count+=1
+
+        model_accuracy = count/size
+        return({"accuracy": model_accuracy})
         # app = Flask(__name__)
         # configure_routes(app)
         # client = app.test_client()
@@ -40,7 +59,7 @@ def configure_routes(app):
         #         count+=1
 
         # return (count/size)
-        return "98"
+        
 
     @app.route('/about/weight')
     def weight():
@@ -59,11 +78,18 @@ def configure_routes(app):
 
     def get_query(G1, G2):
         #Convert types
-        G1 = int(G1)
-        G2 = int(G2)
+        try:
+            G1 = int(G1)
+            G2 = int(G2)
+        except:
+            abort(make_response(
+                    jsonify({"message" : "Invalid query: G1 and G2 arguments are invalid"}), 400)
+                  )
         #Check boundaries
         if G1<0 or G1>20 or G2<0 or G2>20:
-            abort(400, description = "Invalid query: Arguments are missing")
+            abort(make_response(
+                    jsonify({"message" : "Invalid query: G1 and G2 arguments are invalid"}), 400)
+                  )
         query_df = pd.DataFrame({
             'G1': pd.Series(G1),
             'G2': pd.Series(G2)
@@ -75,8 +101,8 @@ def configure_routes(app):
     @app.route('/predict', methods =['GET'])
     def predict():
        
-        G1 = request.args['G1']
-        G2 = request.args['G2']
+        G1 = request.args.get('G1')
+        G2 = request.args.get('G2')
         query = get_query(G1, G2)
         prediction = clf.predict(query)
         output = dict()
