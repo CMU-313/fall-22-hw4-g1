@@ -57,7 +57,9 @@ def configure_routes(app):
         })
         query = pd.get_dummies(query_df)
         prediction = clf.predict(query)
-        return jsonify(np.asscalar(prediction))
+        output = dict()
+        output["prediction"] = np.asscalar(prediction)
+        return jsonify(output)
 
 
     @app.route('/predict/more')
