@@ -126,10 +126,10 @@ def test_accuracy_route():
     url = '/about/accuracy'
 
     response = client.get(url)
-    response_data = response.get_data()
-
+    response_data = json.loads(response.get_data())
+    response_data = response_data['accuracy']
     assert response.status_code == 200
-    assert type(response_data) is int 
+    assert type(response_data) is float 
     assert response_data <= 100 and response_data >= 0
     assert response_data > 50 # our goal for now, may change the threshold later
     

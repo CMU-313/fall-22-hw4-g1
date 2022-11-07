@@ -5,6 +5,7 @@ import pandas as pd
 import numpy as np
 import os
 from pathlib import Path
+import json
 
 def configure_routes(app):
 
@@ -29,37 +30,17 @@ def configure_routes(app):
         df = pd.read_csv(data_path, sep=';')
         count = 0
         size = df.shape[0]
-        for row in df.iterrows():
-            response = client.get('/predict', data = {"G1": row["G1"], 
-                                                      "G2": row["G2"] })
-        actual_pred = (row["G3"] > 15)
-        pred = response.get_data()
-        if (pred == 1 and actual_pred) or (pred == 0 and not actual_pred):
-            count+=1
-
-        model_accuracy = count/size
-        return({"accuracy": model_accuracy})
-        # app = Flask(__name__)
-        # configure_routes(app)
-        # client = app.test_client()
-        # app_dir = os.path.dirname(this_dir)
-        # super_dir = os.path.dirname(app_dir)
-        # data_path = os.path.join(super_dir, "data", "student.mat.csv")
-        # print(data_path, repr(data_path))
-        # data_path = data_path.replace("\\\\", "@")
-        # print(data_path, repr(data_path))
-        # df = pd.read_csv(data_path, sep=';')
-        # count = 0
-        # size = df.shape[0]
-        # for row in df.rows:
-        #     response = client.get('/predict', query_string = {'G1': row["G1"], 'G2': row["G2"]})
-        #     actual_pred = (row["G3"] > 15)
-        #     pred = response.get_data()
-        #     if (pred == 1 and actual_pred) or (pred == 0 and not actual_pred):
-        #         count+=1
-
-        # return (count/size)
-        
+        for _,row in df.iterrows():
+            response = client.get('/predict', query_string = {"G1": row["G1"], 
+                                                              "G2": row["G2"] })
+            actual_pred = (row["G3"] > 15)
+            pred = json.loads(response.get_data())
+            pred = pred['prediction']
+            if (pred == 1 and actual_pred) or (pred == 0 and not actual_pred):
+                count+=1
+        output = dict()
+        output['accuracy'] = (count/size)*100
+        return jsonify(output)
 
     @app.route('/about/weight')
     def weight():
