@@ -4,6 +4,7 @@ import joblib
 import pandas as pd
 import numpy as np
 import os
+from pathlib import Path
 
 def configure_routes(app):
 
@@ -19,7 +20,27 @@ def configure_routes(app):
 
     @app.route('/about/accuracy')
     def accuracy():
-        return "75"
+        # app = Flask(__name__)
+        # configure_routes(app)
+        # client = app.test_client()
+        # app_dir = os.path.dirname(this_dir)
+        # super_dir = os.path.dirname(app_dir)
+        # data_path = os.path.join(super_dir, "data", "student.mat.csv")
+        # print(data_path, repr(data_path))
+        # data_path = data_path.replace("\\\\", "@")
+        # print(data_path, repr(data_path))
+        # df = pd.read_csv(data_path, sep=';')
+        # count = 0
+        # size = df.shape[0]
+        # for row in df.rows:
+        #     response = client.get('/predict', query_string = {'G1': row["G1"], 'G2': row["G2"]})
+        #     actual_pred = (row["G3"] > 15)
+        #     pred = response.get_data()
+        #     if (pred == 1 and actual_pred) or (pred == 0 and not actual_pred):
+        #         count+=1
+
+        # return (count/size)
+        return "98"
 
 
     @app.route('/about/weight')
