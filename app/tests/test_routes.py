@@ -1,7 +1,6 @@
 from flask import Flask
 import pandas as pd
 import numpy as np
-from pathlib import Path
 import os
 
 from app.handlers.routes import configure_routes
@@ -76,7 +75,9 @@ def test_predict_route():
     client = app.test_client()
     
     validate_inputs('/predict')
-    super_dir = Path.cwd().parent
+    test_dir = os.path.dirname(__file__)
+    app_dir = os.path.dirname(test_dir)
+    super_dir = os.path.dirname(app_dir)
     data_path = os.path.join(super_dir, 'data', 'student-mat.csv')
     df = pd.read_csv(data_path, sep=';')
     count = 0
@@ -160,3 +161,4 @@ def test_weight_route():
         sumOfWeights += float(response_data[attribute])
 
     assert sumOfWeights == 1.0
+

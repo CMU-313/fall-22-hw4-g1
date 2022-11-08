@@ -4,7 +4,6 @@ import joblib
 import pandas as pd
 import numpy as np
 import os
-from pathlib import Path
 import json
 
 def configure_routes(app):
@@ -24,8 +23,8 @@ def configure_routes(app):
         app = Flask(__name__)
         configure_routes(app)
         client = app.test_client()
-    
-        super_dir = Path.cwd().parent
+        app_dir = os.path.dirname(this_dir)
+        super_dir = os.path.dirname(app_dir)
         data_path = os.path.join(super_dir, 'data', 'student-mat.csv')
         df = pd.read_csv(data_path, sep=';')
         count = 0
