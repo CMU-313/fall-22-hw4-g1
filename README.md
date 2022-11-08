@@ -1,105 +1,93 @@
-# HW4 Starter Code and Instructions
+# Model Documentation  
 
-Please consult the [homework assignment](https://cmu-313.github.io//assignments/hw4) for additional context and instructions for this code.
+To improve the baseline model, we extracted the features with the highest correlation to G3. Then we iterated on the model to find the subset of those attributes with the highest k-fold accuracy.   
 
-## pipenv
+## Feature Extraction  
 
-[pipenv](https://pipenv.pypa.io/en/latest) is a packaging tool for Python that solves some common problems associated with the typical workflow using pip, virtualenv, and the good old requirements.txt.
+We ran pandas' correlation matrix on all of the student data to explore the relationships between individual attributes and G3. After sorting the resulting Pearson correlation coefficients, we can see that the attributes with very strong correlation to G3 were G2 (0.9) and G1 (0.8). All other attributes had weak associations under a magnitude of 0.4. However, we decided to include failures as a potential attribute in our model in the next phase. Failures had the next highest correlation (-0.36), and this would help us to evaluate whether other attributes with similarly weak correlations were worth revisiting.  
 
-### Installation
-
-#### Prereqs
-
-- The version of Python you and your team will be using (version greater than 3.8)
-- pip package manager is updated to latest version
-- For additional resources, check out [this link](https://pipenv-fork.readthedocs.io/en/latest/install.html#installing-pipenv)
-
-#### Mac OS
-
-To install pipenv from the command line, execute the following:
-
-```terminal
-sudo -H pip install -U pipenv
 ```
+df = pd.read_csv('data/student-mat.csv', sep=';')
+G3_df = df['G3']
+correlation_matrix = df.corrwith(G3_df).sort_values()
+print(correlation_matrix.to_string())  
+```  
 
-#### Windows OS
+**Results**  
 
-The same instructions for Mac OS **should** work for windows, but if it doesn't, follow the instructions [here](https://www.pythontutorial.net/python-basics/install-pipenv-windows).
+Positive correlation to G3:  
+* G2 (90%)  
+* G1 (80%)  
+* Medu (22%)  
+* Fedu (15%)  
+* studytime (10%)  
+*    ...etc  
 
-### Usage
-
-#### Downloading Packages
-
-The repository contains `Pipfile` that declares which packages are necessary to run the `model_build.ipnyb`.
-To install packages declared by the Pipfile, run `pipenv install` in the command line from the root directory.
-
-You might want to use additional packages throughout the assignment.
-To do so, run `pipenv install [PACKAGE_NAME]`, as you would install python packages using pip.
-This should also update `Pipfile` and add the downloaded package under `[packages]`.
-Note that `Pipfile.lock` will also be updated with the specific versions of the dependencies that were installed.
-Any changes to `Pipfile.lock` should also be committed to your Git repository to ensure that all of your team is using the same dependency versions.
-
-#### Virtual Environment
-
-Working in teams can be a hassle since different team members might be using different versions of Python.
-To avoid this issue, you can create a python virtual environment, so you and your team will be working with the same version of Python and PyPi packages.
-Run `pipenv shell` in your command line to activate this project's virtual environment.
-If you have more than one version of Python installed on your machine, you can use pipenv's `--python` option to specify which version of Python should be used to create the virtual environment.
-If you want to learn more about virtual environments, read [this article](https://docs.python-guide.org/dev/virtualenvs/#using-installed-packages).
-You can also specify which version of python you and your team should use under the `[requires]` section in `Pipfile`.
-
-## Jupyter Notebook
-
-You should run your notebook in the virtual environment from pipenv.
-To do, you should run the following command from the root of your repository:
-
-```terminal
-pipenv run jupyter notebook
-```
-
-## API Endpoints
-
-You should also use pipenv to run your Flask API server.
-To do so, execute the following commands from the `app` directory in the pip venv shell.
+Negative correlation to G3:  
+* failures (-36%)  
+* age (-16%)  
+* goout (-13%)  
+* traveltime (-12%)  
+*    ...etc  
 
 
-Set an environment variable for FLASK_APP.
-For Mac and Linux:
-```terminal
-export FLASK_APP=app.py
-```
+## Model Iteration & Accuracy Testing  
 
-For Windows:
-```terminal
-set FLASK_APP=app
-```
+### General Setup
+We considered four common types of models: random forest classifier, basic decision tree, logistic regression, and naive bayes classifier. To evaluate the accuracy, of the model, we checked the f1 score, which is a combination of precision and recall commonly used to evaluate trained binary classifiers. We also checked the k-fold cross-validation accuracy of each type of classifier with 10 splits and shuffling on. This means we **randomly split** the data into training and testing sets ten ways and found the average accuracy. This should mitigate sampling biases and provide a clearer accuracy score than just dividing the dataset in half once.
 
-To run:
-```terminal
-pipenv run flask run
-```
+### Baseline Model
+The baseline model provided in the starter code yields these f1 scores and kfold accuracies when training:   
 
-Or if you're in the pipenv shell, run:
-```terminal
-flask run
-```
+**F1 Score**  
 
-You can alter the port number that is used by the Flask server by changing the following line in `app/app.py`:
++ Random Forest: 0.52
++ Decision Tree: 0.50
++ Logistic Regression: 0.00
++ Naive Bayes: 0.16
 
-```python
-app.run(host="0.0.0.0", debug=True, port=80)
-```
+**K-fold Cross Validation Accuracy**  
 
-## Testing
++ Random Forest: 0.10
++ Decision Tree: 0.11
++ Logistic Regression: 0.00
++ Naive Bayes: 0.04
 
-To run tests, execute the following command from the `app` directory:
+### Iterations
+We first used G1 and G2 to predict G3. The scores are shown below. We can see that this is a huge improvement from the baseline for all types of models. The top three models have very similar scores, and logistic regression has the highest accuracy by a tiny margin.    
 
-```terminal
-pytest
-```
+**F1 Score**  
 
-If you're not in the Pipenv shell, then execute the following command from the `app` directory:
++ Random Forest: 0.95
++ Decision Tree: 0.95
++ Logistic Regression: 0.94
++ Naive Bayes: 0.88
 
-```terminal
-pipenv run pytest
-```
+**K-fold Cross Validation Accuracy**  
+
++ Random Forest: 0.92
++ Decision Tree: 0.92
++ Logistic Regression: 0.93
++ Naive Bayes: 0.86
+
+Just to be safe, we also checked the models using G1, G2, and failures to predict G3. 
+
+**F1 Score**  
+
++ Random Forest: 0.97
++ Decision Tree: 0.97
++ Logistic Regression: 0.95
++ Naive Bayes: 0.84
+
+**K-fold Cross Validation Accuracy**  
+
++ Random Forest: 0.92
++ Decision Tree: 0.93
++ Logistic Regression: 0.94
++ Naive Bayes: 0.83
+
+We can see that logistic regression again has the highest accuracy, but a slightly lower F1 score. Furthermore, adding failures harmed its accuracy. Therefore, we will stick to logistic regression using just G1 and G2.  
+
+## Final Model 
+The final model uses logistic regression and the attributes G1 and G2 to predict if G3 is greater than 15 or not. G1 and G2 are the student's first period and second period grades, so it makes sense that these attributes are so highly correlated with the same student's final grade. As discussed above, the f1 score of this model is 0.95, and the k-fold cross validation value was 0.94. These are much higher (almost double) of the scores for the baseline model.  
+

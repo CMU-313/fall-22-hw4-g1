@@ -52,7 +52,12 @@ def configure_routes(app):
         weights = dict()
         for attribute in attributes:
             weights[attribute] = "0.0"
-        weights["age"] = "1.0"
+        
+        # Extract weights for G1 and G2 directly from model
+        used_weights = clf.coef_[0]
+        denom = used_weights[0] + used_weights[1]
+        weights["G1"] = used_weights[0] / denom
+        weights["G2"] = used_weights[1] / denom
 
         return jsonify(weights)
 
